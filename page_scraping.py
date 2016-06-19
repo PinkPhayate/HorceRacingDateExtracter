@@ -15,7 +15,7 @@ def pageSrc (url):
     # type(r)   =>  response
     r = requests.get(url)
 
-    # operate below, unable to encode('utf-8')
+    # if operate below, unable to encode('utf-8')
     r.encoding = r.apparent_encoding
     html_src = r.text.encode('utf-8')
     # print html_src
@@ -27,23 +27,30 @@ def pageSrc (url):
 
     return html_src
 
+# def isEmpty(list):
+#     if not list:
+#         return true
+#     else:
+#         return false
 def scraping(html_src, output_name):
     soup = BeautifulSoup(html_src, 'html.parser')
     result_table = soup.find(class_='race_result fc')
     # print result_table
-    writecsv = csv.writer(file(output_name, 'ab'), lineterminator='n')
+    f = open(output_name, 'w')
+    writer = csv.writer(f, lineterminator='\n')
     table_list = []
     for tr in result_table.findAll('tr',''):
         table_low = []
         for td in tr.findAll('td'):
             # remove 'a' tag
             content = td.a
-            if content != None:
+            if content:
+            # if content != None:
                 content = td.a.string
                 table_low.append(content)
             else :
                 content = td.span
-                if content != None:
+                if content:
                     content = td.span.string
                     # print content
                     table_low.append(content)
@@ -52,14 +59,17 @@ def scraping(html_src, output_name):
                     content = td.renderContents()
                     # print content
                     table_low.append(content)
-        print location(); print table_low
-        if len(table_low) != 0 :
-            print location();
+        print location(),; print table_low
+        if table_low:
+            print location(),
+            print table_low
             table_list.append(table_low)
-            # print table_low;
+    if table_list:
+        writer.writerow(table_list)
+    f.close()
 
-    writecsv.writerow(table_list)
-    file.close
+
+
 
 if __name__ == '__main__':
     url = 'http://race.netkeiba.com/?pid=race&id=c201605010411&mode=result'
